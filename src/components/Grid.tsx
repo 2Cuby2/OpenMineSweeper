@@ -49,7 +49,7 @@ const Item = ({ pos }: ItemProps) => {
     };
 
     let disabled = false;
-    let content: JSX.Element | null = null;
+    let content: React.JSX.Element | null = null;
     let style: StyleProp<ViewStyle> = styles.box;
 
     if (item.status === ItemObjectStatus.Hidden) {
@@ -99,7 +99,7 @@ const Item = ({ pos }: ItemProps) => {
                 marginHorizontal: 2,
             }}
         >
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={style}
                 onPress={onPress}
                 onLongPress={onLongPress}
@@ -116,7 +116,7 @@ const Item = ({ pos }: ItemProps) => {
 type RowProps = { pos: number; num: number; };
 const Row = ({ pos, num }: RowProps) => {
     const rows = [];
-    for (let i=0; i < num; i++) {
+    for (let i = 0; i < num; i++) {
         rows.push(
             <Item key={i} pos={{ x: i, y: pos }} />
         );
@@ -132,7 +132,7 @@ const Row = ({ pos, num }: RowProps) => {
 type GridProps = { rows: number; cols: number; };
 const Grid = ({ rows, cols: colsNum }: GridProps) => {
     const cols = [];
-    for (let i=0; i < colsNum; i++) {
+    for (let i = 0; i < colsNum; i++) {
         cols.push(
             <Row key={i} pos={i} num={rows} />
         );

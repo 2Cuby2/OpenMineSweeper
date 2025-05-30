@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint @typescript-eslint/no-empty-function: "off" */
+
 import React, {
     createContext,
     useState,
@@ -53,7 +54,7 @@ export const GameManagerContext = createContext<GameManagerContextType>({
 });
 
 
-type GameManagerProviderProps = { children: JSX.Element };
+type GameManagerProviderProps = { children: React.JSX.Element };
 function GameManagerProvider({ children }: GameManagerProviderProps) {
     // Config
     const [dimensions, setDimensions] = useState({ rows: 0, cols: 0 });

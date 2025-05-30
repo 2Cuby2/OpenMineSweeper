@@ -38,7 +38,6 @@ const HandleReturn = ({ stopTimer }: HandleReturnProps) => {
         useCallback(() => {
             const onBackPress = stopTimer;
             BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
     return null;

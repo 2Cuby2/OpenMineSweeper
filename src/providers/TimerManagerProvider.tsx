@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint @typescript-eslint/no-empty-function: "off" */
+
 import React, {
     createContext,
     useState,
@@ -24,7 +25,7 @@ export const TimerManagerContext = createContext<TimerManagerContextType>({
 });
 
 
-type TimerManagerProviderProps = { children: JSX.Element };
+type TimerManagerProviderProps = { children: React.JSX.Element };
 function TimerManagerProvider({ children }: TimerManagerProviderProps) {
     const [timerStatus, setTimerStatus] = useState(TimerStatus.Idle);
 
