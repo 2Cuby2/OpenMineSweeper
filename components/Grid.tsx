@@ -1,3 +1,5 @@
+import { useTheme } from '@react-navigation/native'
+import Constants from 'expo-constants';
 import React from 'react';
 import {
     StyleSheet,
@@ -9,16 +11,10 @@ import {
     ViewStyle,
     Vibration,
 } from 'react-native';
-import { useTheme } from '@react-navigation/native'
 
-import Constants from 'expo-constants';
-
-import { ItemObjectStatus } from '../providers/utils';
-
-import { useGameManager } from '../hooks';
-
-import Theme from '../theme';
-
+import Theme from '@/constants/Theme';
+import useGameManager from '@/hooks/useGameManager';
+import { ItemObjectStatus } from '@/providers/utils';
 
 const styles = StyleSheet.create({
     box: {
@@ -28,7 +24,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 });
-
 
 type ItemProps = { pos: { x: number, y: number }; };
 const Item = ({ pos }: ItemProps) => {
@@ -66,7 +61,7 @@ const Item = ({ pos }: ItemProps) => {
             content = (
                 <Image
                     style={{ width: 20, height: 20 }}
-                    source={require('../../assets/bomb_black.png')}
+                    source={require('@/assets/images/bomb_black.png')}
                 />
             );
         } else {
@@ -83,7 +78,7 @@ const Item = ({ pos }: ItemProps) => {
         content = (
             <Image
                 style={{ width: 20, height: 20 }}
-                source={require('../../assets/flag.png')}
+                source={require('@/assets/images/flag.png')}
             />
         );
         style = [styles.box, {
@@ -112,7 +107,6 @@ const Item = ({ pos }: ItemProps) => {
     );
 };
 
-
 type RowProps = { pos: number; num: number; };
 const Row = ({ pos, num }: RowProps) => {
     const rows = [];
@@ -128,7 +122,6 @@ const Row = ({ pos, num }: RowProps) => {
     );
 };
 
-
 type GridProps = { rows: number; cols: number; };
 const Grid = ({ rows, cols: colsNum }: GridProps) => {
     const cols = [];
@@ -143,6 +136,5 @@ const Grid = ({ rows, cols: colsNum }: GridProps) => {
         </View>
     );
 }
-
 
 export default Grid;

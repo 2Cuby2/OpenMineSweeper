@@ -2,32 +2,35 @@
   "expo": {
     "name": "MineSweeper",
     "slug": "minesweeper",
-    "platforms": ["ios", "android"],
-    "version": "2.1.1",
+    "version": "2.2.0",
     "orientation": "portrait",
-    "icon": "./assets/bomb_icon.png",
+    "icon": "./assets/images/bomb_icon.png",
+    "scheme": "minesweeper",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/bomb_splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "bundleIdentifier": "com.github.dCuby2.MineSweeper",
-      "supportsTablet": true
-    },
+    "newArchEnabled": true,
+    "platforms": ["android"],
     "android": {
-      "package": "com.github.dCuby2.MineSweeper"
+      "package": "com.github.dCuby2.MineSweeper",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images//bomb_icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
     },
-    "extra": {
-      "test": false,
-      "eas": {
-        "projectId": "7079fdcc-30e3-4bae-b5b7-8072903234d9"
-      }
-    },
-    "owner": "2cuby2"
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "../assets/bomb_splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }
