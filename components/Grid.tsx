@@ -1,140 +1,146 @@
-import { useTheme } from '@react-navigation/native'
 import Constants from 'expo-constants';
 import React from 'react';
-import {
-    StyleSheet,
-    View,
-    TouchableOpacity,
-    Text,
-    Image,
-    StyleProp,
-    ViewStyle,
-    Vibration,
-} from 'react-native';
+import { Pressable, View, Vibration } from 'react-native';
+import { Icon, Text, useTheme } from 'react-native-paper';
 
-import Theme from '@/constants/Theme';
 import useGameManager from '@/hooks/useGameManager';
 import { ItemObjectStatus } from '@/providers/utils';
 
-const styles = StyleSheet.create({
-    box: {
-        flex: 1,
-        borderRadius: 2,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});
+const ITEM_SIZE = 40;
 
-type ItemProps = { pos: { x: number, y: number }; };
-const Item = ({ pos }: ItemProps) => {
-    const {
-        grid,
-        revealSquare,
-        flagSquare,
-    } = useGameManager();
+type ItemProps = { pos: { x: number, y: number } };
+const Item = ({ pos: { x, y } }: ItemProps) => {
+  const {
+    grid,
+    revealSquare,
+    flagSquare,
+  } = useGameManager();
 
-    const theme = useTheme() as typeof Theme;
+  const theme = useTheme();
 
-    const item = grid[pos.y][pos.x];
+  const item = grid[y][x];
 
-    const onPress = () => revealSquare(pos.x, pos.y);
-    const onLongPress = () => {
-        flagSquare(pos.x, pos.y);
-        Vibration.vibrate(200);
-    };
+  const surroundingItems = {
+    left: x - 1 < 0 ? null : grid[y][x - 1],
+    right: x + 1 > grid[0].length - 1 ? null : grid[y][x + 1],
+    top: y - 1 < 0 ? null : grid[y - 1][x],
+    bottom: y + 1 > grid.length - 1 ? null : grid[y + 1][x],
+  };
 
-    let disabled = false;
-    let content: React.JSX.Element | null = null;
-    let style: StyleProp<ViewStyle> = styles.box;
+  let content: React.JSX.Element | null = null;
+  switch (item.status) {
+    case ItemObjectStatus.Hidden:
+      content = Constants.expoConfig?.extra?.test
+        ? <Text variant="bodyLarge">{item.isBomb ? 'x' : ' '}</Text>
+        : null;
+      break;
+    case ItemObjectStatus.Revealed:
+      content = item.isBomb
+        ? <Icon source='bomb' size={25} />
+        : <Text variant="bodyLarge">{item.nextBombsCount === 0 ? null : item.nextBombsCount}</Text>;
+      break;
+    case ItemObjectStatus.Flagged:
+      content = <Icon source='flag-variant' color={theme.colors.onSecondary} size={25} />;
+      break;
+  }
 
-    if (item.status === ItemObjectStatus.Hidden) {
-        content = Constants.expoConfig?.extra?.test
-            ? <Text>{item.isBomb ? 'x' : ' '}</Text>
-            : null;
-        style = [styles.box, {
-            backgroundColor: theme.colors.secondaryDark,
-        }];
-    } else if (item.status === ItemObjectStatus.Revealed) {
-        const count = item.nextBombsCount;
-
-        if (item.isBomb) {
-            content = (
-                <Image
-                    style={{ width: 20, height: 20 }}
-                    source={require('@/assets/images/bomb_black.png')}
-                />
-            );
-        } else {
-            content = (
-                <Text>{count === 0 ? null : count}</Text>
-            );
-        }
-
-        disabled = true;
-        style = [styles.box, {
-            backgroundColor: theme.colors.secondary,
-        }];
-    } else if (item.status === ItemObjectStatus.Flagged) {
-        content = (
-            <Image
-                style={{ width: 20, height: 20 }}
-                source={require('@/assets/images/flag.png')}
-            />
-        );
-        style = [styles.box, {
-            backgroundColor: theme.colors.secondaryDark,
-        }];
-    }
-
-    return (
-        <View
-            style={{
-                flex: 1,
-                marginVertical: 2,
-                marginHorizontal: 2,
-            }}
-        >
-            <TouchableOpacity
-                style={style}
-                onPress={onPress}
-                onLongPress={onLongPress}
-                delayLongPress={200}
-                disabled={disabled}
-            >
-                {content}
-            </TouchableOpacity>
-        </View>
-    );
+  return (
+    <View
+      style={{
+        padding: 2,
+        // Cast a shadow to mark a separation between revealed grid elements
+        boxShadow: [
+          {
+            // Left part
+            offsetX: 0,
+            offsetY: -7,
+            spreadDistance: -6,
+            color: item.isRevealed() && surroundingItems.left?.isRevealed()
+              ? theme.colors.outline
+              : theme.colors.background
+          },
+          {
+            // Right part
+            offsetX: 0,
+            offsetY: 7,
+            spreadDistance: -6,
+            color: item.isRevealed() && surroundingItems.right?.isRevealed()
+              ? theme.colors.outline
+              : theme.colors.background
+          },
+          {
+            // Top part
+            offsetX: -7,
+            offsetY: 0,
+            spreadDistance: -6,
+            color: item.isRevealed() && surroundingItems.top?.isRevealed()
+              ? theme.colors.outline
+              : theme.colors.background
+          },
+          {
+            // Bottom part
+            offsetX: 7,
+            offsetY: 0,
+            spreadDistance: -6,
+            color: item.isRevealed() && surroundingItems.bottom?.isRevealed()
+              ? theme.colors.outline
+              : theme.colors.background
+          },
+        ],
+      }}
+    >
+      <Pressable
+        cancelable={false}
+        disabled={item.isRevealed()}
+        onPress={() => revealSquare(x, y)}
+        onLongPress={() => {
+          flagSquare(x, y);
+          Vibration.vibrate(200);
+        }}
+        delayLongPress={200}
+        hitSlop={10}
+        style={({ pressed }) => [{
+          height: ITEM_SIZE,
+          width: ITEM_SIZE,
+          alignItems: 'center',
+          borderRadius: 3,
+          justifyContent: 'center',
+          backgroundColor: item.isRevealed() ? theme.colors.background : theme.colors.secondary,
+        }]}
+      >
+        {content}
+      </Pressable>
+    </View>
+  );
 };
 
-type RowProps = { pos: number; num: number; };
-const Row = ({ pos, num }: RowProps) => {
-    const rows = [];
-    for (let i = 0; i < num; i++) {
-        rows.push(
-            <Item key={i} pos={{ x: i, y: pos }} />
-        );
-    }
-    return (
-        <View style={{ flex: 1, flexDirection: 'row' }}>
-            {rows}
-        </View>
+type RowProps = { row: number; columnNums: number };
+const Row = ({ row, columnNums }: RowProps) => {
+  const cols = [];
+  for (let i = 0; i < columnNums; i++) {
+    cols.push(
+      <Item key={i} pos={{ x: row, y: i }} />
     );
+  }
+  return (
+    <View style={{ flexDirection: 'row' }}>
+      {cols}
+    </View>
+  );
 };
 
-type GridProps = { rows: number; cols: number; };
-const Grid = ({ rows, cols: colsNum }: GridProps) => {
-    const cols = [];
-    for (let i = 0; i < colsNum; i++) {
-        cols.push(
-            <Row key={i} pos={i} num={rows} />
-        );
-    }
-    return (
-        <View style={{ flex: 1 }}>
-            {cols}
-        </View>
+type GridProps = { rows: number; cols: number };
+const Grid = ({ rows: rowsNul, cols }: GridProps) => {
+  const rows = [];
+  for (let i = 0; i < rowsNul; i++) {
+    rows.push(
+      <Row key={i} row={i} columnNums={cols} />
     );
+  }
+  return (
+    <View>
+      {rows}
+    </View>
+  );
 }
-
 export default Grid;

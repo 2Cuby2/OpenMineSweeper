@@ -3,21 +3,37 @@ export enum ItemObjectStatus {
   Flagged = 1,
   Revealed = 2,
 }
-export type ItemObject = { isBomb: boolean, nextBombsCount: number; status: ItemObjectStatus };
+
+class ItemObject {
+  isBomb = false;
+  nextBombsCount = 0;
+  status = ItemObjectStatus.Hidden;
+
+  isHidden(): boolean {
+    return this.status === ItemObjectStatus.Hidden;
+  }
+
+  isFlagged(): boolean {
+    return this.status === ItemObjectStatus.Flagged;
+  }
+
+  isRevealed(): boolean {
+    return this.status === ItemObjectStatus.Revealed;
+  }
+}
+
 export type GridObject = ItemObject[][];
 
 // Create a blank grid and return a ranom number of bombs
 export function createBlankGrid(row: number, col: number): { grid: GridObject, numBombs: number } {
   const grid = new Array(col).fill(null).map(
-    () => new Array(row).fill(null).map(() => ({
-      isBomb: false,
-      nextBombsCount: 0,
-      status: ItemObjectStatus.Hidden,
-    })),
+    () => new Array(row).fill(null).map(() => new ItemObject()),
   );
+
   const max = Math.floor(row * col / 6);
   const min = Math.floor(max / 1.5);
   const numBombs = Math.floor(Math.random() * (max - min + 1)) + min;
+
   return { grid, numBombs };
 }
 
@@ -25,6 +41,7 @@ export function createBlankGrid(row: number, col: number): { grid: GridObject, n
 function placeBombs(grid: GridObject, num: number, xFirst: number, yFirst: number) {
   const col = grid.length;
   const row = grid[0].length;
+
   while (num > 0) {
     const y = Math.floor(Math.random() * col);
     const x = Math.floor(Math.random() * row);
@@ -33,6 +50,7 @@ function placeBombs(grid: GridObject, num: number, xFirst: number, yFirst: numbe
       num--;
     }
   }
+
   return grid;
 }
 
@@ -54,7 +72,7 @@ export function setupGrid(grid: GridObject, num: number, xFirst: number, yFirst:
   grid = placeBombs(grid, num, xFirst, yFirst);
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[0].length; x++) {
-      if (!grid[y][x].isBomb) grid[y][x].nextBombsCount = countNextBombs(grid, x, y)
+      if (!grid[y][x].isBomb) grid[y][x].nextBombsCount = countNextBombs(grid, x, y);
     }
   }
   return grid;
@@ -65,7 +83,7 @@ export function handle0Bomb(grid: GridObject, x: number, y: number) {
   for (let j = -1; j <= 1; j++) {
     for (let i = -1; i <= 1; i++) {
       if ((j + y >= 0) && (i + x >= 0) && (j + y < grid.length) && (i + x < grid[0].length) && !(i === 0 && j === 0)) {
-        const wasRevealed = grid[j + y][i + x].status === ItemObjectStatus.Revealed;
+        const wasRevealed = grid[j + y][i + x].isRevealed();
         if (wasRevealed) continue;
         grid[j + y][i + x].status = ItemObjectStatus.Revealed;
         if (grid[j + y][i + x].nextBombsCount === 0) grid = handle0Bomb(grid, i + x, j + y);
@@ -79,7 +97,7 @@ export function handle0Bomb(grid: GridObject, x: number, y: number) {
 export function isOver(grid: GridObject) {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[0].length; x++) {
-      if (!grid[y][x].isBomb && grid[y][x].status !== ItemObjectStatus.Revealed) {
+      if (!grid[y][x].isBomb && !grid[y][x].isRevealed()) {
         return false;
       }
     }

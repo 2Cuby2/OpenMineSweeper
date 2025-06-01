@@ -1,33 +1,25 @@
-import { ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { SystemBars } from 'react-native-edge-to-edge';
+import { PaperProvider, MD3DarkTheme } from 'react-native-paper';
 import 'react-native-reanimated';
 
-import HeaderRight from '@/components/HeaderRight';
-import Theme from '@/constants/Theme';
-import GameManagerProvider from '@/providers/GameManagerProvider';
-import TimerManagerProvider from '@/providers/TimerManagerProvider';
+import AppbarBottom from '@/components/AppbarBottom';
 
 export default function RootLayout() {
   return (
-    <ThemeProvider value={Theme}>
-      <GameManagerProvider>
-        <TimerManagerProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              title: 'MineSweeper',
-              headerBackVisible: false,
-              headerTitleStyle: { color: Theme.colors.textLight },
-              headerStyle: { backgroundColor: Theme.colors.primaryDark },
-              animation: 'none',
-            }}
-          >
-            <Stack.Screen name='settings' />
-            <Stack.Screen name='game' options={{ headerRight: HeaderRight }} />
-          </Stack>
-        </TimerManagerProvider>
-      </GameManagerProvider>
-    </ThemeProvider>
+    <PaperProvider theme={MD3DarkTheme}>
+      <SystemBars style='light' />
+      <Stack
+        screenOptions={{
+          contentStyle: { backgroundColor: MD3DarkTheme.colors.background },
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name='settings' options={{ animation: 'ios_from_left' }} />
+        <Stack.Screen name='game' options={{ animation: 'ios_from_right' }} />
+      </Stack>
+      <AppbarBottom/>
+    </PaperProvider>
   );
 }

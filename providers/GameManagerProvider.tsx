@@ -17,28 +17,28 @@ import {
 
 export enum GameStatus {
   NotInitialized = 0,
-  Started = 1,
-  Won = 2,
-  Lost = 3,
+  Initialized = 1,
+  Paused = 2,
+  Started = 3,
+  Lost = 4,
+  Won = 5,
 }
 
 type GameManagerContextType = {
   grid: GridObject;
   numBombs: number;
-  status: GameStatus;
-  dimensions: { rows: number; cols: number };
-  resizeGrid: (rows: number, cols: number) => void;
-  restart: () => void;
+  gameStatus: GameStatus;
+  pauseGame: () => void;
+  restartGame: () => void;
   revealSquare: (x: number, y: number) => void;
   flagSquare: (x: number, y: number) => void;
 };
 export const GameManagerContext = createContext<GameManagerContextType>({
   grid: [],
   numBombs: 0,
-  status: GameStatus.NotInitialized,
-  dimensions: { rows: 0, cols: 0 },
-  resizeGrid: () => { },
-  restart: () => { },
+  gameStatus: GameStatus.NotInitialized,
+  pauseGame: () => { },
+  restartGame: () => { },
   revealSquare: () => ({
     isBomb: false,
     nextBombsCount: 0,
@@ -51,10 +51,12 @@ export const GameManagerContext = createContext<GameManagerContextType>({
   }),
 });
 
-type GameManagerProviderProps = { children: React.JSX.Element | React.JSX.Element[] };
-function GameManagerProvider({ children }: GameManagerProviderProps) {
-  // Config
-  const [dimensions, setDimensions] = useState({ rows: 0, cols: 0 });
+type GameManagerProviderProps = {
+  rows: number;
+  cols: number;
+  children: React.JSX.Element | React.JSX.Element[];
+};
+function GameManagerProvider({ rows, cols, children }: GameManagerProviderProps) {
   // Number of bombs
   const [numBombs, setNumBombs] = useState<number>(0);
   // Grid
@@ -62,26 +64,20 @@ function GameManagerProvider({ children }: GameManagerProviderProps) {
   // Game status
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.NotInitialized);
 
-  const { rows, cols } = dimensions;
+  const pauseGame = useCallback(() => {
+    setGameStatus(GameStatus.Paused);
+  }, [setGameStatus]);
 
-  const resizeGrid = useCallback((rows: number, cols: number) => {
-    setDimensions({ rows, cols });
+  const restartGame = useCallback(() => {
     const { grid: newGrid, numBombs: newNumBombs } = createBlankGrid(rows, cols);
-    setGameStatus(GameStatus.NotInitialized);
+    setGameStatus(GameStatus.Initialized);
     setNumBombs(newNumBombs);
     setGrid(newGrid);
-  }, []);
-
-  const restart = useCallback(() => {
-    const { grid: newGrid, numBombs: newNumBombs } = createBlankGrid(rows, cols);
-    setGameStatus(GameStatus.NotInitialized);
-    setNumBombs(newNumBombs);
-    setGrid(newGrid);
-  }, [dimensions]);
+  }, [setGameStatus, setNumBombs, setGrid]);
 
   const revealSquare = (x: number, y: number) => {
     // If it's the first move, set the grid
-    if (gameStatus === GameStatus.NotInitialized) {
+    if (gameStatus === GameStatus.Initialized) {
       setupGrid(grid, numBombs, x, y);
       setGameStatus(GameStatus.Started);
     }
@@ -122,19 +118,19 @@ function GameManagerProvider({ children }: GameManagerProviderProps) {
   };
 
   return (
-    <GameManagerContext.Provider value={{
-      grid,
-      numBombs,
-      status: gameStatus,
-      dimensions,
-      resizeGrid,
-      restart,
-      revealSquare,
-      flagSquare,
-    }}>
+    <GameManagerContext.Provider
+      value={{
+        grid,
+        numBombs,
+        gameStatus,
+        pauseGame,
+        restartGame,
+        revealSquare,
+        flagSquare,
+      }}
+    >
       {children}
     </GameManagerContext.Provider>
   );
 }
-
 export default GameManagerProvider;

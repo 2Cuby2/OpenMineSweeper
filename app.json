@@ -6,16 +6,20 @@
     "orientation": "portrait",
     "icon": "./assets/images/bomb_icon.png",
     "scheme": "minesweeper",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "black",
     "newArchEnabled": true,
+    "backgroundColor": "#1d1b1e",
     "platforms": ["android"],
     "android": {
       "package": "com.github.dCuby2.MineSweeper",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images//bomb_icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/bomb_icon.png",
+        "backgroundColor": "#1d1b1e"
       },
       "edgeToEdgeEnabled": true
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content"
     },
     "plugins": [
       "expo-router",
@@ -25,7 +29,18 @@
           "image": "../assets/bomb_splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#1d1b1e",
+          "dark": {
+            "backgroundColor": "#1d1b1e"
+          }
+        }
+      ],
+      [
+        "react-native-edge-to-edge",
+        {
+          "android": {
+            "enforceNavigationBarContrast": false
+          }
         }
       ]
     ],

@@ -1,179 +1,84 @@
-import { useFocusEffect, useTheme } from '@react-navigation/native'
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from 'react';
+import { useNavigation } from 'expo-router';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  SafeAreaView,
+  Button,
+  Dialog,
   Text,
-  View,
-  TouchableHighlight,
-  Animated,
-  Dimensions,
-  Easing,
-  BackHandler
-} from 'react-native';
+  Portal,
+} from 'react-native-paper';
 
 import Grid from '@/components/Grid';
-import Theme from '@/constants/Theme';
-import useGameManager from '@/hooks/useGameManager';
-import useTimerManager from '@/hooks/useTimerManager';
-import { GameStatus } from '@/providers/GameManagerProvider';
-import styles from '@/styles';
+import ZoomableView from '@/components/ZoomableView';
+import useGameManager, { GameStatus } from '@/hooks/useGameManager';
 
-/* Handle hardware android back button events that should stop timer before changing screen to prevent
- * state chage before unmounting Game component
-*/
-type HandleReturnProps = { stopTimer: () => boolean | null | undefined };
-const HandleReturn = ({ stopTimer }: HandleReturnProps) => {
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = stopTimer;
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    }, [stopTimer])
-  );
-  return null;
-};
-
-const Game = () => {
-  const {
-    dimensions: { rows, cols },
-    status: gameStatus,
-    restart: restartGame,
-  } = useGameManager();
-
-  const theme = useTheme() as typeof Theme;
-
-  const { start: startTimer, reset: resetTimer } = useTimerManager();
+type GameProps = { rows: number; cols: number, initialZoom: number };
+const Game = ({ rows, cols, initialZoom }: GameProps) => {
+  const { gameStatus, pauseGame, restartGame } = useGameManager();
 
   // Text to display once game is over (win or loose)
   const [text, setText] = useState('');
-  // State if it's possible to click on the grid
-  const [canBePressed, setCanBePressed] = useState<'auto' | 'none'>('auto');
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Y position of the popup (start hidden at the bottom of the screen)
-  const pos = useRef(new Animated.Value(-180));
-  // Scale of the popup for the animation
-  const scale = useRef(new Animated.Value(1));
+  const navigation = useNavigation();
+
+  // Generate grid when rendered
+  useEffect(() => restartGame(), [restartGame]);
+
+  // Stop timer when leaving game screen
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => pauseGame());
+    return () => unsubscribe();
+  }, [navigation, pauseGame]);
 
   // Handle game status updates
   useEffect(() => {
     switch (gameStatus) {
-      case GameStatus.Started:
-        startTimer();
-        break;
       case GameStatus.Lost:
-        resetTimer();
-        showModal('You lose :(');
+        setText('You lose :(');
+        setModalVisible(true);
         break;
       case GameStatus.Won:
-        resetTimer();
-        showModal('You win !');
+        setText('You win !');
+        setModalVisible(true);
         break;
       default:
         break;
     }
-  }, [gameStatus, startTimer, resetTimer]);
+  }, [gameStatus]);
 
-  const restart = () => {
+  const restart = useCallback(() => {
     restartGame();
-    Animated.timing(pos.current, {
-      toValue: -180,
-      duration: 500,
-      useNativeDriver: false,
-      easing: Easing.out(Easing.ease)
-    }).start(() => {
-      setCanBePressed('auto'); // Allow click on the grid
-      resetTimer(); // Reset timer for the new game
-    });
-  }
-
-  // Show popup once game is over
-  const showModal = (text: string) => {
-    setText(text);
-    Animated.sequence([
-      // EaseOut animation from the bottom of the screen to the center
-      Animated.timing(pos.current, {
-        toValue: Dimensions.get('window').height / 2 - 90,
-        duration: 1000,
-        useNativeDriver: false,
-        easing: Easing.out(Easing.ease)
-      }),
-      // Pulse animation once popup has appeared
-      Animated.timing(scale.current, {
-        toValue: 1.4,
-        duration: 250,
-        useNativeDriver: false,
-      }),
-      Animated.timing(scale.current, {
-        toValue: 1,
-        duration: 250,
-        useNativeDriver: false,
-      })
-    ]).start(() => setCanBePressed('none')); // Prevent from clicking on the grid when popup show
-  }
+    setModalVisible(false);
+  }, [restartGame, setModalVisible]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-
-      <View
-        style={{
-          flex: 12,
-          marginVertical: 2,
-          marginHorizontal: 2,
-        }}
-        pointerEvents={canBePressed}
-      >
-        <Grid rows={rows} cols={cols} />
-      </View>
-
-      <Animated.View
-        style={{
+    <>
+      <ZoomableView
+        maxZoom={2}
+        containerStyle={{
           flex: 1,
-          justifyContent: 'center',
           alignItems: 'center',
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: pos.current,
+          justifyContent: 'center',
         }}
+        containerChildrenStyle={{ padding: 5 }}
       >
-        <Animated.View
-          style={{
-            backgroundColor: theme.colors.background,
-            margin: 20,
-            borderRadius: 10,
-            padding: 35,
-            alignItems: 'center',
-            elevation: 5,
-            transform: [{ scale: scale.current }],
-          }}
-        >
-          <Text style={{
-            marginBottom: 25,
-            fontSize: 15,
-            textAlign: 'center',
-          }}>
-            {text}
-          </Text>
-          <TouchableHighlight
-            style={[styles.button, {
-              backgroundColor: theme.colors.primary,
-            }]}
-            underlayColor={theme.colors.secondary}
-            onPress={restart}
+        {gameStatus === GameStatus.NotInitialized ? null : <Grid rows={rows} cols={cols} />}
+      </ZoomableView>
+      <Portal>
+          <Dialog
+            visible={modalVisible}
+            dismissableBackButton={false}
+            style={{ alignItems: 'center' }}
           >
-            <Text style={{ textAlign: 'center' }}>Retry</Text>
-          </TouchableHighlight>
-        </Animated.View>
-      </Animated.View>
-
-      <HandleReturn stopTimer={resetTimer as () => undefined} />
-
-    </SafeAreaView>
+            <Dialog.Content>
+              <Text variant='titleLarge'>{text}</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button mode='contained' icon='restart' onPress={restart}> Restart </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+    </>
   );
 };
-
 export default Game;
