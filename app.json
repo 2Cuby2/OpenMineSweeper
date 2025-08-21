@@ -9,7 +9,9 @@
     "userInterfaceStyle": "black",
     "newArchEnabled": true,
     "backgroundColor": "#1d1b1e",
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "android": {
       "package": "com.github.dCuby2.MineSweeper",
       "adaptiveIcon": {
@@ -42,7 +44,8 @@
             "enforceNavigationBarContrast": false
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
