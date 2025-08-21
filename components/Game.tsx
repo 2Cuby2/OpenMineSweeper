@@ -11,8 +11,8 @@ import Grid from '@/components/Grid';
 import ZoomableView from '@/components/ZoomableView';
 import useGameManager, { GameStatus } from '@/hooks/useGameManager';
 
-type GameProps = { rows: number; cols: number, initialZoom: number };
-const Game = ({ rows, cols, initialZoom }: GameProps) => {
+type GameProps = { rows: number; cols: number };
+const Game = ({ rows, cols }: GameProps) => {
   const { gameStatus, pauseGame, restartGame } = useGameManager();
 
   // Text to display once game is over (win or loose)
