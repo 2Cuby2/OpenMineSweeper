@@ -1,48 +1,40 @@
-import Constants from 'expo-constants';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, View, Vibration } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
-
+import Animated, {
+  Easing,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import useGameManager from '@/hooks/useGameManager';
-import { ItemObjectStatus } from '@/providers/utils';
 
 const ITEM_SIZE = 40;
 
 type ItemProps = { pos: { x: number, y: number } };
 const Item = ({ pos: { x, y } }: ItemProps) => {
   const {
-    grid,
+    getSquare,
+    getSurroundingSquares,
     revealSquare,
     flagSquare,
   } = useGameManager();
 
+  const item = getSquare(x, y);
+  const isRevealed = item?.isRevealed();
+
+  const surroundingItems = getSurroundingSquares(x, y);
+
   const theme = useTheme();
 
-  const item = grid[y][x];
+  const animatedSquareSize = useSharedValue(ITEM_SIZE);
 
-  const surroundingItems = {
-    left: x - 1 < 0 ? null : grid[y][x - 1],
-    right: x + 1 > grid[0].length - 1 ? null : grid[y][x + 1],
-    top: y - 1 < 0 ? null : grid[y - 1][x],
-    bottom: y + 1 > grid.length - 1 ? null : grid[y + 1][x],
-  };
-
-  let content: React.JSX.Element | null = null;
-  switch (item.status) {
-    case ItemObjectStatus.Hidden:
-      content = Constants.expoConfig?.extra?.test
-        ? <Text variant="bodyLarge">{item.isBomb ? 'x' : ' '}</Text>
-        : null;
-      break;
-    case ItemObjectStatus.Revealed:
-      content = item.isBomb
-        ? <Icon source='bomb' size={25} />
-        : <Text variant="bodyLarge">{item.nextBombsCount === 0 ? null : item.nextBombsCount}</Text>;
-      break;
-    case ItemObjectStatus.Flagged:
-      content = <Icon source='flag-variant' color={theme.colors.onSecondary} size={25} />;
-      break;
-  }
+  useEffect(() => {
+    if (isRevealed) {
+      animatedSquareSize.value = withTiming(0, { duration: 150 });
+    } else {
+      animatedSquareSize.value = ITEM_SIZE;
+    }
+  }, [isRevealed, animatedSquareSize]);
 
   return (
     <View
@@ -55,7 +47,7 @@ const Item = ({ pos: { x, y } }: ItemProps) => {
             offsetX: 0,
             offsetY: -7,
             spreadDistance: -6,
-            color: item.isRevealed() && surroundingItems.left?.isRevealed()
+            color: item?.isRevealed() && surroundingItems.left?.isRevealed()
               ? theme.colors.outline
               : theme.colors.background
           },
@@ -64,7 +56,7 @@ const Item = ({ pos: { x, y } }: ItemProps) => {
             offsetX: 0,
             offsetY: 7,
             spreadDistance: -6,
-            color: item.isRevealed() && surroundingItems.right?.isRevealed()
+            color: item?.isRevealed() && surroundingItems.right?.isRevealed()
               ? theme.colors.outline
               : theme.colors.background
           },
@@ -73,7 +65,7 @@ const Item = ({ pos: { x, y } }: ItemProps) => {
             offsetX: -7,
             offsetY: 0,
             spreadDistance: -6,
-            color: item.isRevealed() && surroundingItems.top?.isRevealed()
+            color: item?.isRevealed() && surroundingItems.top?.isRevealed()
               ? theme.colors.outline
               : theme.colors.background
           },
@@ -82,7 +74,7 @@ const Item = ({ pos: { x, y } }: ItemProps) => {
             offsetX: 7,
             offsetY: 0,
             spreadDistance: -6,
-            color: item.isRevealed() && surroundingItems.bottom?.isRevealed()
+            color: item?.isRevealed() && surroundingItems.bottom?.isRevealed()
               ? theme.colors.outline
               : theme.colors.background
           },
@@ -91,7 +83,7 @@ const Item = ({ pos: { x, y } }: ItemProps) => {
     >
       <Pressable
         cancelable={false}
-        disabled={item.isRevealed()}
+        disabled={item?.isRevealed()}
         onPress={() => revealSquare(x, y)}
         onLongPress={() => {
           flagSquare(x, y);
@@ -99,16 +91,34 @@ const Item = ({ pos: { x, y } }: ItemProps) => {
         }}
         delayLongPress={200}
         hitSlop={10}
-        style={({ pressed }) => [{
-          height: ITEM_SIZE,
+        style={{
           width: ITEM_SIZE,
+          height: ITEM_SIZE,
           alignItems: 'center',
-          borderRadius: 3,
           justifyContent: 'center',
-          backgroundColor: item.isRevealed() ? theme.colors.background : theme.colors.secondary,
-        }]}
+        }}
       >
-        {content}
+        <Animated.View
+          style={[{
+            height: animatedSquareSize,
+            width: animatedSquareSize,
+            borderRadius: 3,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.colors.secondary,
+            position: 'absolute',
+            zIndex: 1,
+          }]}
+        >
+          {item?.isFlagged()
+            ? <Icon source='flag-variant' color={theme.colors.onSecondary} size={25} />
+            : null
+          }
+        </Animated.View>
+        {item?.isBomb
+          ? <Icon source='bomb' size={25} />
+          : <Text variant="bodyLarge">{item?.nextBombsCount === 0 ? null : item?.nextBombsCount}</Text>
+        }
       </Pressable>
     </View>
   );

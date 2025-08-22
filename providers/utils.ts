@@ -4,7 +4,7 @@ export enum ItemObjectStatus {
   Revealed = 2,
 }
 
-class ItemObject {
+export class ItemObject {
   isBomb = false;
   nextBombsCount = 0;
   status = ItemObjectStatus.Hidden;
