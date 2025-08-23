@@ -1,11 +1,7 @@
 import React, { useEffect } from 'react';
 import { Pressable, View, Vibration } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
-import Animated, {
-  Easing,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import useGameManager from '@/hooks/useGameManager';
 
 const ITEM_SIZE = 40;
