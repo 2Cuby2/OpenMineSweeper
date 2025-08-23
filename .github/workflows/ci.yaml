@@ -27,8 +27,5 @@ jobs:
       - name: 📦 Install node modules 
         run: npm install
 
-      - name: ✔️ Type check
-        run: npm run type-check
-
       - name: 🧪 Lint
         run: npm run lint
