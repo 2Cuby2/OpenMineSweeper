@@ -1,22 +1,21 @@
 {
   "cli": {
-    "version": ">= 3.13.3"
+    "version": ">= 16.17.4",
+    "appVersionSource": "local"
   },
   "build": {
+    "development": {
+      "extends": "production",
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "preview": {
-      "android": {
-        "buildType": "apk"
-      }
+      "extends": "production",
+      "distribution": "internal"
     },
-    "preview2": {
-      "android": {
-        "gradleCommand": ":app:assembleRelease"
-      }
-    },
-    "preview3": {
-      "developmentClient": true
-    },
-    "production": {}
+    "production": {
+      "node": "24.6.0"
+    }
   },
   "submit": {
     "production": {}

@@ -1,37 +1,61 @@
 {
   "expo": {
-    "name": "MineSweeper",
-    "slug": "minesweeper",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
-    "version": "2.1.1",
+    "name": "OpenMineSweeper",
+    "slug": "openminesweeper",
+    "version": "3.0.0",
     "orientation": "portrait",
-    "icon": "./assets/bomb_icon.png",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/bomb_splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": [
-      "**/*"
+    "icon": "./assets/images/bomb_icon.png",
+    "scheme": "openminesweeper",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "backgroundColor": "#1d1b1e",
+    "platforms": [
+      "android"
     ],
-    "ios": {
-      "bundleIdentifier": "com.github.dCuby2.MineSweeper",
-      "supportsTablet": true
-    },
     "android": {
-      "package": "com.github.dCuby2.MineSweeper"
+      "package": "com.github.u_2Cuby2.OpenMineSweeper",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/bomb_icon.png",
+        "backgroundColor": "#1d1b1e"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#1d1b1e"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/bomb_icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#1d1b1e",
+          "dark": {
+            "backgroundColor": "#1d1b1e"
+          }
+        }
+      ],
+      [
+        "react-native-edge-to-edge",
+        {
+          "android": {
+            "enforceNavigationBarContrast": false
+          }
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true
     },
     "extra": {
-      "test": false,
+      "router": {},
       "eas": {
-        "projectId": "7079fdcc-30e3-4bae-b5b7-8072903234d9"
+        "projectId": "749372c9-d7ee-4186-a944-afc25f71fae7"
       }
-    },
-    "owner": "2cuby2"
+    }
   }
 }
