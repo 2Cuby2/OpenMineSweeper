@@ -16,7 +16,7 @@ export default function RootLayout() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name='settings' options={{ animation: 'ios_from_left' }} />
+        <Stack.Screen name='index' options={{ animation: 'ios_from_left' }} />
         <Stack.Screen name='game' options={{ animation: 'ios_from_right' }} />
       </Stack>
       <AppbarBottom/>
