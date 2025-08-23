@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "../assets/bomb_splash.png",
+          "image": "./assets/images/bomb_icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#1d1b1e",
