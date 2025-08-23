@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "MineSweeper",
-    "slug": "minesweeper",
+    "name": "OpenMineSweeper",
+    "slug": "openminesweeper",
     "version": "2.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/bomb_icon.png",
-    "scheme": "minesweeper",
+    "scheme": "openminesweeper",
     "userInterfaceStyle": "black",
     "newArchEnabled": true,
     "backgroundColor": "#1d1b1e",
@@ -13,7 +13,7 @@
       "android"
     ],
     "android": {
-      "package": "com.github.dCuby2.MineSweeper",
+      "package": "com.github.2Cuby2.MineSweeper",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/bomb_icon.png",
         "backgroundColor": "#1d1b1e"
